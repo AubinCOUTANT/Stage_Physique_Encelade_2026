@@ -10,11 +10,16 @@ L'objectif de ce travail est de modéliser l'évolution microstructurale du rég
 Les scripts ci-dessous sont indexés selon les mentions "Code source" figurant dans les légendes des figures de mon rapport.
 
 ### [Code 1] : Thermodynamique de la glace
-* **Fichier** : `andreas_thermo.py` 
-* **Description** : Implémentation de la loi d'Andreas (2007) pour le calcul de la pression de vapeur saturante (Psat). 
-* **Utilisation** : Ce code a servi à générer la Figure 2 du rapport (Évolution de Psat sur la gamme 60-180 K).
+* **Fichier** : `andreas_thermo.py`
+* **Description** : Implémentation de la loi d'Andreas (2007) pour le calcul de la pression de vapeur saturante ($P_{sat}$).
+* **Utilisation** : Ce code a servi à générer la Figure 2 du rapport (Évolution de $P_{sat}$ sur la gamme 60-180 K).
+
+### [Code 2] : Modèle de Sublimation (Validation)
+* **Fichier** : `sublimation_model.py`
+* **Description** : Résolution numérique (RK4) de l'érosion des grains selon la loi de Hertz-Knudsen et le modèle de Gundlach et al. (2018).
+* **Utilisation** : Ce code permet de reproduire les données expérimentales de référence (Validation de la dynamique de sublimation présentée en Section 2.3).
 
 ---
 **Auteur** : Aubin COUTANT (L3 Physique)
 **Encadrants** : Gabriel TOBIE, Riccardo ARTONI
-**Laboratoire** : LPG - Nantes Université / CNRS UMR 6112 
+**Laboratoire** : LPG - Nantes Université / CNRS UMR 6112
