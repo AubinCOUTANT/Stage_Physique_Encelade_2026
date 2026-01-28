@@ -12,7 +12,7 @@ Les scripts ci-dessous sont indexés selon les mentions "Code source" figurant d
 ### [Code 1] : Thermodynamique de la glace
 * **Fichier** : `andreas_thermo.py`
 * **Description** : Implémentation de la loi d'Andreas (2007) pour le calcul de la pression de vapeur saturante ($P_{sat}$) sur la gamme de températures d'Encelade.
-* **Utilisation** : Ce code a servi à générer la Figure 2 du rapport (Évolution de $P_{sat}$ vs Température).
+* **Utilisation** : Ce code a servi à générer la Figure 2 du rapport (Évolution de $P_{sat}$ en fpnction de la Température).
 
 ### [Code 2] : Modèle de Sublimation (Validation)
 * **Fichier** : `sublimation_model.py`
