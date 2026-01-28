@@ -3,7 +3,7 @@
 Ce dépôt contient les ressources numériques développées dans le cadre de mon stage de Physique (2026) au **Laboratoire de Planétologie et Géosciences (LPG)** de Nantes.
 
 ## Présentation du Projet
-L'objectif de ce travail est de modéliser l'évolution microstructurale du régolithe d'Encelade en simulant la compétition thermodynamique entre le **frittage** (*sintering*) et la **sublimation**. Ces simulations visent à contraindre la stabilité mécanique de la surface pour préparer l'atterrissage de la future mission **ESA-E4**.
+L'objectif de ce travail est de modéliser l'évolution microstructurale du régolithe d'Encelade en simulant la compétition thermodynamique entre le **frittage** (*sintering*) et la **sublimation**. Ces simulations visent à contraindre la stabilité mécanique de la surface pour préparer l'atterrissage de la future mission **ESA-L4**.
 
 ## Index des Ressources (référencées dans le rapport)
 
@@ -24,10 +24,10 @@ Les scripts ci-dessous sont indexés selon les mentions "Code source" figurant d
 * **Description** : Algorithme utilisant un solveur **Runge-Kutta 4 vectoriel** pour résoudre le système d'équations différentielles couplées. Il simule l'interaction simultanée entre la croissance du pont de glace (*neck*) par diffusion et son érosion par sublimation.
 * **Utilisation** : Génère la courbe de validation montrant l'évolution temporelle du neck ainsi que les phases de "Neck Evolution" et "Solidification". (Figure 4 du rapport).
 
-### [Code 4] : Extrapolation aux échelles géologiques
+### [Code 4] : Cartographie de la stabilité thermique (Zonage)
 * **Fichier** : `enceladus_extrapolation.py`
-* **Description** : Application du modèle validé pour simuler l'évolution du frittage sur des temps longs (jusqu'à $10^{20}$ s) dans les environnements thermiques d'Encelade, d'Europe et des comètes.
-* **Utilisation** : Produit le graphique de comparaison des temps caractéristiques de consolidation pour différents corps du système solaire (Figure 5 du rapport).
+* **Description** : Application du modèle de frittage aux environnements thermiques spécifiques d'Encelade. Le code simule l'évolution sur des temps géologiques pour trois zones distinctes : les plaines inertes (80 K), les marges des *Tiger Stripes* (100-160 K) et les points chauds actifs (180-220 K).
+* **Utilisation** : Produit le graphique de zonage thermique évaluant la consolidation de la surface pour chaque région (Figure 5 du rapport).
 
 ---
 **Auteur** : Aubin COUTANT (L3 Physique)  
