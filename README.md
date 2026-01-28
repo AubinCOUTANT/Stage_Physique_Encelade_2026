@@ -19,7 +19,7 @@ Les scripts ci-dessous sont indexés selon les mentions "Code source" figurant d
 * **Description** : Résolution numérique (RK4) de l'érosion des grains selon la loi de Hertz-Knudsen et le modèle géométrique de Gundlach et al. (2018).
 * **Utilisation** : Ce code permet de reproduire les données expérimentales de référence pour la perte de masse (Figure 3 du rapport).
 
-### [Code 3] : Modèle de Sintering (Compétition Dynamique)
+### [Code 3] : Modèle de Sintering (Interaction dynamique)
 * **Fichier** : `sintering_model.py`
 * **Description** : Algorithme utilisant un solveur **Runge-Kutta 4 vectoriel** pour résoudre le système d'équations différentielles couplées. Il simule l'interaction simultanée entre la croissance du pont de glace (*neck*) par diffusion et son érosion par sublimation.
 * **Utilisation** : Génère la courbe de validation montrant l'évolution temporelle du neck ainsi que les phases de "Neck Evolution" et "Solidification". (Figure 4 du rapport, reproduisant la Fig. 8 de Gundlach).
