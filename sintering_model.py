@@ -49,8 +49,15 @@ Omega = 2.0e-5     # Molar volume [m^3/mol]
 alpha = np.pi/2    # Geometric packing factor related to porosity
 
 # Pressure condition in the experimental chamber
-p_gas = 1e-5       # Partial pressure of water [Pa] (Adjusted to fit data)
+p_gas = 1e-5       # Partial pressure of water [Pa]
 T_gas = 300.0      # Chamber wall temperature [K]
+
+# SCALING FACTORS (Model Calibration)
+# SCALING_PARTICLE (0.9): Accommodation coefficient for the ice surface.
+# SCALING_NECK (0.01): Geometric confinement factor. In the concave neck region, 
+#                      most molecules re-condense immediately.
+SCALING_PARTICLE = 0.9   
+SCALING_NECK     = 0.01   
 
 def rho_ice(T):
     """ Ice density as a function of Temperature [kg/m^3] """
@@ -58,7 +65,7 @@ def rho_ice(T):
 
 def p_sat(T):
     """
-    Computes saturation vapor pressure (Andreas 2007 / Murphy & Koop 2005).
+    Computes saturation vapor pressure (Andreas 2007).
     """
     return np.exp(9.550426 - 5723.265/T + 3.53068*np.log(T) - 0.00728332*T)
 
@@ -79,25 +86,23 @@ def hertz_knudsen(T_surface, p_gas_val, T_gas_val):
     
     return (flux_out - flux_in)
 
-def system_func(T_pa, T_mt, T_su):
+def system_func(T_exp):
     """
     Defines the system of coupled differential equations:
     dy/dt = f(t, y) where y = [r_p, r_n]
     
     Parameters:
-    - T_pa: Particle Temperature (controls particle sublimation)
-    - T_mt: Mass Transport Temperature (controls diffusion/sintering)
-    - T_su: Neck Surface Temperature (controls neck sublimation)
+    - T_exp: Experimental Temperature [K]
     """
-    rho = rho_ice(T_pa) 
+    rho = rho_ice(T_exp) 
     
-    # Calculate fluxes based on Hertz-Knudsen
-    Z_particule = hertz_knudsen(T_pa, p_gas, T_gas) # For particle erosion
-    Z_neck = hertz_knudsen(T_su, p_gas, T_gas)      # For neck erosion
+    # Calculate Theoretical Flux (Hertz-Knudsen)
+    # Using Andreas 2007 for p_sat
+    Z_theory = hertz_knudsen(T_exp, p_gas, T_gas)
     
     # Sintering efficiency factor Zeta (Eq. 3 in Gundlach)
-    P_mt = p_sat(T_mt)
-    zeta = (Omega**2 * gamma * P_mt) / (R * T_mt * np.sqrt(2 * np.pi * mu * R * T_mt))
+    P_mt = p_sat(T_exp)
+    zeta = (Omega**2 * gamma * P_mt) / (R * T_exp * np.sqrt(2 * np.pi * mu * R * T_exp))
     
     def f(t, Y):
         rp = Y[0] # Current particle radius
@@ -105,11 +110,12 @@ def system_func(T_pa, T_mt, T_su):
         
         # 1. Particle Evolution
         # Critical radius 
-        rc_val = 2 * mu * gamma / (rho * R * T_pa)
+        rc_val = 2 * mu * gamma / (rho * R * T_exp)
         
         # Evolution of particle radius (Eq. 7 derivative)
+        # Modified with SCALING_PARTICLE (Accommodation)
         facteur_courbure = rp / (rp - rc_val) 
-        drp = - (Z_particule / rho) * facteur_courbure 
+        drp = - (Z_theory / rho) * SCALING_PARTICLE * facteur_courbure 
         
         # 2. Neck Evolution 
         
@@ -130,7 +136,8 @@ def system_func(T_pa, T_mt, T_su):
         dv_sinter = zeta * S * terme_crochet
         
         # Loss term: Sublimation of the neck (Eq. 9)
-        dv_sub_neck = - Z_neck / rho 
+        # Modified with SCALING_NECK 
+        dv_sub_neck = - (Z_theory / rho) * SCALING_NECK
         
         # Master Equation (Eq. 1): Total neck evolution
         drn = dv_sinter + dv_sub_neck
@@ -150,19 +157,14 @@ def system_func(T_pa, T_mt, T_su):
 Y0 = [1.5e-6, 7.5e-8]  
 
 # Time parameters
-t_max = 10580     
+t_max = 11800 
 N_pas = 200000      
 
 # Temperature Setup
-# NOTE: T_su is adjusted (-9.5 K) to account for self-shadowing/concavity 
-# protection of the neck
 T_exp = 160.0
-T_pa = T_exp        # Particle T
-T_mt = T_exp        # Diffusion T
-T_su = T_exp - 9.5  # Neck T (Cooler)
 
 # Run Simulation
-fonction_systeme = system_func(T_pa, T_mt, T_su)
+fonction_systeme = system_func(T_exp)
 Temps, Resultats = runge_kutta_4_vec(fonction_systeme, Y0, 0, t_max, N_pas)
 
 # Extract results
@@ -210,3 +212,4 @@ plt.grid(True, which="both", alpha=0.2)
 plt.show()
 
 # End
+
