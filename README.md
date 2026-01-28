@@ -22,7 +22,12 @@ Les scripts ci-dessous sont indexés selon les mentions "Code source" figurant d
 ### [Code 3] : Modèle de Sintering (Interaction dynamique)
 * **Fichier** : `sintering_model.py`
 * **Description** : Algorithme utilisant un solveur **Runge-Kutta 4 vectoriel** pour résoudre le système d'équations différentielles couplées. Il simule l'interaction simultanée entre la croissance du pont de glace (*neck*) par diffusion et son érosion par sublimation.
-* **Utilisation** : Génère la courbe de validation montrant l'évolution temporelle du neck ainsi que les phases de "Neck Evolution" et "Solidification". (Figure 4 du rapport, reproduisant la Fig. 8 de Gundlach).
+* **Utilisation** : Génère la courbe de validation montrant l'évolution temporelle du neck ainsi que les phases de "Neck Evolution" et "Solidification". (Figure 4 du rapport).
+
+### [Code 4] : Extrapolation aux échelles géologiques
+* **Fichier** : `enceladus_extrapolation.py`
+* **Description** : Application du modèle validé pour simuler l'évolution du frittage sur des temps longs (jusqu'à $10^{20}$ s) dans les environnements thermiques d'Encelade, d'Europe et des comètes.
+* **Utilisation** : Produit le graphique de comparaison des temps caractéristiques de consolidation pour différents corps du système solaire (Figure 5 du rapport).
 
 ---
 **Auteur** : Aubin COUTANT (L3 Physique)  
