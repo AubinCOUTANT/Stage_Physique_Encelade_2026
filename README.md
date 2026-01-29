@@ -29,6 +29,11 @@ Les scripts ci-dessous sont indexés selon les mentions "Code source" figurant d
 * **Description** : Application du modèle de frittage aux environnements thermiques spécifiques d'Encelade. Le code simule l'évolution sur des temps géologiques pour trois zones distinctes : les plaines inertes (80 K), les marges des *Tiger Stripes* (100-160 K) et les points chauds actifs (180-220 K).
 * **Utilisation** : Produit le graphique de zonage thermique évaluant la consolidation de la surface pour chaque région (Figure 5 du rapport).
 
+### [Code 5] : Étude de sensibilité (Taille des grains - 80 K)
+* **Fichier** : `enceladus_grain_size_effect_80K.py`
+* **Description** : Étude de l'influence de la granulométrie sur la cinétique de frittage à température fixée (80 K). Le code intègre la théorie **JKR** (Johnson-Kendall-Roberts) pour calculer l'adhésion initiale et simule l'évolution pour des grains de 0,5 à 100 $\mu m$ avec des pas de temps dynamiques.
+* **Utilisation** : Produit la Figure 6 du rapport, illustrant l'absence de consolidation par frittage dans les plaines et la prédominance des forces de contact élastiques.
+
 ---
 **Auteur** : Aubin COUTANT (L3 Physique)  
 **Encadrants** : Gabriel TOBIE, Riccardo ARTONI  
