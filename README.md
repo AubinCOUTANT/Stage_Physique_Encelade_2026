@@ -31,8 +31,13 @@ Les scripts ci-dessous sont indexés selon les mentions "Code source" figurant d
 
 ### [Code 5] : Étude de sensibilité (Taille des grains - 80 K)
 * **Fichier** : `enceladus_grain_size_effect_80K.py`
-* **Description** : Étude de l'influence de la granulométrie sur la cinétique de frittage à température fixée (80 K). Le code intègre la théorie **JKR** (Johnson-Kendall-Roberts) pour calculer l'adhésion initiale et simule l'évolution pour des grains de 0,5 à 100 $\mu m$ avec des pas de temps dynamiques.
+* **Description** : Étude de l'influence de la granulométrie sur la cinétique de frittage à température fixée (80 K - Plaines). Le code intègre la théorie **JKR** (Johnson-Kendall-Roberts) pour calculer l'adhésion initiale et simule l'évolution pour des grains de 0,5 à 100 $\mu m$.
 * **Utilisation** : Produit la Figure 6 du rapport, illustrant l'absence de consolidation par frittage dans les plaines et la prédominance des forces de contact élastiques.
+
+### [Code 6] : Étude de sensibilité (Taille des grains - 120 K)
+* **Fichier** : `enceladus_grain_size_effect_120K.py`
+* **Description** : Simulation de la cinétique de frittage dans les conditions thermiques des zones actives (120 K - Marges des *Tiger Stripes*). Le code met en évidence la divergence des temps de consolidation selon la taille des grains.
+* **Utilisation** : Produit la Figure 7 du rapport, montrant la formation rapide d'une croûte pour les grains fins (< 5 $\mu m$) et la persistance d'un état granulaire pour les grains grossiers.
 
 ---
 **Auteur** : Aubin COUTANT (L3 Physique)  
