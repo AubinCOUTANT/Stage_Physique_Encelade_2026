@@ -1,6 +1,7 @@
 # COUTANT Aubin L3 Internship: Modeling physical properties of Enceladus' icy surface
 # Study of the influence of grain size (granulometry) on sintering kinetics.
 # Includes dynamic time-stepping per grain size to avoid numerical artifacts.
+# T = 80K
 
 # Start
 
