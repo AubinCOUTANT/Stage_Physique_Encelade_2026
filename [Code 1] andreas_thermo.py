@@ -75,7 +75,7 @@ plt.ylim(1e-35, 1e0)
 
 plt.tight_layout()
 
-# Save and show
+# Show
 plt.show()
 
 # End
