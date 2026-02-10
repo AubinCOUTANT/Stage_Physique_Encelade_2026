@@ -57,13 +57,16 @@ omega   = 2.0e-5        # Molar volume [m^3/mol]
 alpha   = np.pi/2       # Packing factor (Porosity ~0.5)
 
 # JKR Elastic Properties
-E = 10.5e9         
-nu = 0.31          
+E = 10.5e9          
+nu = 0.31           
 K = (2/3) * E / (1 - nu**2)
 
 # Scaling Factors
 SCALING_PARTICULE = 0.9
 SCALING_NECK      = 0.01
+
+# Conversion Factor: Seconds to Years
+SEC_TO_YEAR = 1 / (365.25 * 24 * 3600)
 
 # ==============================================================================
 # 3. PHYSICS & THERMODYNAMICS
@@ -177,8 +180,8 @@ for i, rp_val in enumerate(grain_sizes):
     
     valid_mask = neck_radius < (0.999 * particle_radius)
     
-    # Plotting only valid part
-    plt.loglog(Time_array[valid_mask], neck_radius[valid_mask], 
+    # Plotting only valid part with Time converted to YEARS
+    plt.loglog(Time_array[valid_mask] * SEC_TO_YEAR, neck_radius[valid_mask], 
                color=colors[i], linewidth=2.5, label=f'$r_p$ = {labels[i]}')
     
     # JKR Level line
@@ -189,11 +192,12 @@ for i, rp_val in enumerate(grain_sizes):
 # ==============================================================================
 
 plt.title(f"Influence of Grain Size on Sintering at T = {T_study} K (Enceladus Plains)", fontsize=16)
-plt.xlabel("Time [s]", fontsize=14, fontweight='bold')
+plt.xlabel("Time [Years]", fontsize=14, fontweight='bold') # Changed Label
 plt.ylabel("Sinter Neck Radius ($r_n$) [m]", fontsize=14, fontweight='bold')
 
-plt.axvline(x=1.45e17, color='black', linestyle='--', linewidth=2)
-plt.text(5e16, 1.2e-6, "Age of the Solar System", rotation=90, fontsize=12, va='bottom')
+# Vertical line at 4.5 billion years (Age of solar system)
+plt.axvline(x=4.5e9, color='black', linestyle='--', linewidth=2)
+plt.text(1.5e9, 1.2e-6, "Age of the Solar System", rotation=90, fontsize=12, va='bottom')
 
 plt.legend(title="Initial Grain Size", loc='upper left', fontsize=12)
 plt.grid(True, which="both", alpha=0.4, color='grey')
@@ -205,8 +209,9 @@ ax.tick_params(which='minor', length=4, width=1)
 loc_majeurs_y = ticker.LogLocator(base=10.0, numticks=10)
 ax.yaxis.set_major_locator(loc_majeurs_y)
 
+plt.xlim(3e5, 3e15) 
+
 plt.tight_layout()
-plt.savefig('Fig_Granulometry_80K.png', dpi=300)
 plt.show()
 
 # End
