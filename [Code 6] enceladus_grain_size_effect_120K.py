@@ -1,7 +1,8 @@
 # COUTANT Aubin L3 Internship: Modeling physical properties of Enceladus' icy surface
 # Study of the influence of grain size (granulometry) on sintering kinetics.
 # Includes dynamic time-stepping per grain size to avoid numerical artifacts.
-# T = 120K
+# Multi-panel: T = 120K, 140K, 160K
+
 
 # Start
 
@@ -37,7 +38,6 @@ def runge_kutta_4_vec(f, y0, T_array):
         if Y[i+1][1] < 1e-10: Y[i+1][1] = 1e-10
         
         # Check for full solidification 
-        # If neck >= particle, we can theoretically stop or clamp
         if Y[i+1][1] >= 0.999 * Y[i+1][0]:
             Y[i+1][1] = Y[i+1][0]
             
@@ -57,46 +57,31 @@ omega   = 2.0e-5        # Molar volume [m^3/mol]
 alpha   = np.pi/2       # Packing factor (Porosity ~0.5)
 
 # JKR Elastic Properties
-E = 10.5e9         
-nu = 0.31          
+E = 10.5e9          
+nu = 0.31           
 K = (2/3) * E / (1 - nu**2)
 
 # Scaling Factors
 SCALING_PARTICULE = 0.9
 SCALING_NECK      = 0.01
 
+# TIME CONVERSION (Seconds -> Years)
+SEC_PER_YEAR = 365.25 * 24 * 3600
+
 # ==============================================================================
 # 3. PHYSICS & THERMODYNAMICS
 # ==============================================================================
 
 def rho_ice(T):
-    """ 
-    Calculates the density of water ice [kg/m^3] as a function of Temperature.
-    Based on standard empirical fits for low-temperature ice evolution.
-    """
     return 916 - 0.175 * T - 5.0e-4 * T**2
 
 def p_sat(T):
-    """ 
-    Computes the Saturation Vapor Pressure of ice [Pa].
-    Source: Andreas (2007), derived from Murphy & Koop (2005)..
-    """
     return np.exp(9.550426 - 5723.265/T + 3.53068*np.log(T) - 0.00728332*T)
 
 def JKR_theory(rp):
-    """ 
-    Calculates the initial neck radius (r_n0) formed immediately upon contact due to adhesion.
-    Based on the JKR (Johnson-Kendall-Roberts, 1971) theory for elastic contact.
-    This defines the starting point of cohesion before any sintering occurs.
-    """
     return (6 * np.pi * gamma * (rp/2)**2 / K)**(1/3)
 
 def hertz_knudsen_flux(T, P_sat):
-    """ 
-    Calculates the theoretical maximum mass flux Z [kg/(m^2 s)].
-    Based on the Hertz-Knudsen-Langmuir equation.
-    It quantifies the kinetic exchange of water molecules between the solid surface and the vacuum.
-    """
     return P_sat * np.sqrt(mu / (2 * np.pi * R * T))
 
 # ==============================================================================
@@ -142,72 +127,91 @@ def system_derivatives(T_env):
     return f
 
 # ==============================================================================
-# 5. SIMULATION SETUP (GRAIN SIZE STUDY)
+# 5. SIMULATION SETUP (MULTI-TEMP STUDY)
 # ==============================================================================
 
-# Temperature for Tiger Stripes 
-T_study = 120.0  
+# Temperatures to study
+temps_study = [120.0, 140.0, 160.0]
 
 # Grain sizes to test
 grain_sizes = [0.5e-6, 5e-6, 20e-6, 50e-6, 100e-6]
 colors = ['#00BFFF', '#1E90FF', '#4169E1', '#0000FF', '#000080']
 labels = ['0.5 µm', '5 µm', '20 µm', '50 µm', '100 µm']
 
-plt.figure(figsize=(12, 8))
-func_system = system_derivatives(T_study)
+# Setup Subplots (3 vertical panels)
+fig, axes = plt.subplots(3, 1, figsize=(10, 14), sharex=True)
+plt.subplots_adjust(hspace=0.1)
 
-# Loop over each grain size
-for i, rp_val in enumerate(grain_sizes):
+# Global Time Array (in seconds)
+t_start = 1e2     # ~ minutes
+t_max   = 1e14    # ~ 3 million years
+Time_array = np.geomspace(t_start, t_max, 5000)
+
+# Loop over temperatures (Panels)
+for idx_t, T_val in enumerate(temps_study):
+    ax = axes[idx_t]
+    func_system = system_derivatives(T_val)
     
-    # Time range adapted for 120 K 
-    t_start = 1e3
-    t_max   = 1e15 
+    # Loop over grain sizes (Curves)
+    for i, rp_val in enumerate(grain_sizes):
+        
+        # Initial Conditions (JKR)
+        rn_val = JKR_theory(rp_val)
+        Y0 = [rp_val, rn_val]
+        
+        # Run Simulation
+        res = runge_kutta_4_vec(func_system, Y0, Time_array)
+        
+        # Clean Data
+        neck_radius = res[:, 1]
+        particle_radius = res[:, 0]
+        valid_mask = neck_radius < (0.999 * particle_radius)
+        
+        # Plotting (X-Axis converted to YEARS)
+        ax.loglog(Time_array[valid_mask] / SEC_PER_YEAR, neck_radius[valid_mask], 
+                   color=colors[i], linewidth=2.5, 
+                   label=f'$r_p$ = {labels[i]}' if idx_t == 0 else "")
+        
+        # JKR Level line
+        ax.axhline(y=rn_val, color=colors[i], linestyle=':', alpha=0.6, linewidth=1)
+
+    # Panel specific formatting
+    ax.text(0.02, 0.85, f"T = {int(T_val)} K", transform=ax.transAxes, 
+            fontsize=14, fontweight='bold', bbox=dict(facecolor='white', alpha=0.8))
+    ax.grid(True, which="both", alpha=0.4, color='grey')
+    ax.set_ylabel(r"$r_n$ [m]", fontsize=12, fontweight='bold')
     
-    Time_array = np.geomspace(t_start, t_max, 5000)
+    # Vertical Lines for 1 Year and 1 Century
+    ax.axvline(x=1, color='red', linestyle='--', alpha=0.6, linewidth=1.5)
+    ax.axvline(x=100, color='darkred', linestyle='--', alpha=0.6, linewidth=1.5)
     
-    # Initial Conditions (JKR)
-    rn_val = JKR_theory(rp_val)
-    Y0 = [rp_val, rn_val]
-    
-    # Run Simulation
-    res = runge_kutta_4_vec(func_system, Y0, Time_array)
-    
-    # Clean Data (Stop plotting if solidified)
-    neck_radius = res[:, 1]
-    particle_radius = res[:, 0]
-    
-    valid_mask = neck_radius < (0.999 * particle_radius)
-    
-    # Plotting
-    plt.loglog(Time_array[valid_mask], neck_radius[valid_mask], 
-               color=colors[i], linewidth=2.5, label=f'$r_p$ = {labels[i]}')
-    
-    # JKR Level line
-    plt.axhline(y=rn_val, color=colors[i], linestyle=':', alpha=0.6, linewidth=1)
+   # Set limits for consistency
+    ax.set_ylim(1e-8, 1e-5)
 
 # ==============================================================================
-# 6. FORMATTING
+# 6. GLOBAL FORMATTING
 # ==============================================================================
 
+axes[0].set_title("Granulometry Sensitivity across Active Zones (120K - 160K)", fontsize=16, fontweight='bold')
+axes[2].set_xlabel("Time [years]", fontsize=14, fontweight='bold')
 
-plt.title(f"Influence of Grain Size on Sintering at T = {T_study} K (Tiger Stripes Margins)", fontsize=16)
-plt.xlabel("Time [s]", fontsize=14, fontweight='bold')
-plt.ylabel("Sinter Neck Radius ($r_n$) [m]", fontsize=14, fontweight='bold')
+# Legend only on top panel
+axes[0].legend(title="Initial Grain Size", loc='lower right', fontsize=10)
 
-plt.text(2e11, 2e-7, "Age of the Solar System ->", rotation=0, fontsize=12, va='bottom', ha='left')
+# Add text annotations for 1 Year / 1 Century on the bottom plot
+axes[2].text(1.3, 1.5e-8, "1 Year", color='red', rotation=90, fontsize=10, va='bottom')
+axes[2].text(130, 1.5e-8, "1 Century", color='darkred', rotation=90, fontsize=10, va='bottom')
 
-plt.legend(title="Initial Grain Size", loc='upper left', fontsize=12)
-plt.grid(True, which="both", alpha=0.4, color='grey')
+plt.xlim(1e-5, 3e6) 
 
-ax = plt.gca()
-ax.tick_params(which='both', direction='in', top=True, right=True, labelsize=12)
-ax.tick_params(which='major', length=8, width=1.5)
-ax.tick_params(which='minor', length=4, width=1)
-
-plt.xlim(1e3, 1e15)
-
-loc_majeurs_y = ticker.LogLocator(base=10.0, numticks=10)
-ax.yaxis.set_major_locator(loc_majeurs_y)
+# Axis Ticks formatting
+for ax in axes:
+    ax.tick_params(which='both', direction='in', top=True, right=True, labelsize=12)
+    ax.tick_params(which='major', length=8, width=1.5)
+    ax.tick_params(which='minor', length=4, width=1)
+    # Log Locator for Y axis to ensure ticks are visible with new range
+    loc_majeurs_y = ticker.LogLocator(base=10.0, numticks=10)
+    ax.yaxis.set_major_locator(loc_majeurs_y)
 
 plt.tight_layout()
 plt.show()
