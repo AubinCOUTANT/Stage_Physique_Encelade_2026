@@ -285,7 +285,6 @@ ax.tick_params(which='minor', length=4, width=1)
 loc_majeurs_y = ticker.LogLocator(base=10.0, numticks=10)
 ax.yaxis.set_major_locator(loc_majeurs_y)
 
-# Limits ajusted for Years (1e-3 sec becomes ~3e-11 years)
 plt.xlim(1e-11, 1e13) 
 plt.ylim(3e-8, 3e-7)
 plt.grid(True, which="both", alpha=0.4, color='grey')
