@@ -1,6 +1,6 @@
 # COUTANT Aubin L3 Internship: Modeling physical properties of Enceladus' icy surface
-# Extrapolation of the sintering model (validated in Fig. 8) to astronomical
-# time scales. Application to the specific thermal zoning of Enceladus.
+# Extrapolation of the sintering model to astronomical time scales.
+# Application to the specific thermal zoning of Enceladus.
 
 # Start
 
@@ -39,7 +39,7 @@ def runge_kutta_4_dynamic(f, y0, T_array):
         # Numerical safety
         if Y[i+1][0] < 1e-10: Y[i+1][0] = 1e-10
         if Y[i+1][1] < 1e-10: Y[i+1][1] = 1e-10
-             
+              
     return Y
 
 # ==============================================================================
@@ -58,6 +58,9 @@ alpha   = np.pi/2       # Packing factor (Porosity ~0.5)
 # Scaling Factors (Model Calibration)
 SCALING_PARTICULE = 0.9
 SCALING_NECK      = 0.01
+
+# Conversion Factor: Seconds to Years
+SEC_TO_YEAR = 1 / (365.25 * 24 * 3600)
 
 # ==============================================================================
 # 3. THERMODYNAMIC FUNCTIONS 
@@ -147,23 +150,25 @@ def system_derivatives(T_env):
 plt.figure(figsize=(12, 8)) 
 
 # Initial Conditions (Standard 0.5 µm grains for Fig 12)
-rp_init = 0.5e-6       
-rn_init = 3.6e-8       # Initial adhesion 
+rp_init = 0.5e-6        
+rn_init = 3.6e-8        # Initial adhesion 
 Y0 = [rp_init, rn_init]
 
-y_txt = 1.45e-7        # Vertical position for temperature labels
+y_txt = 1.45e-7         # Vertical position for temperature labels
 
 # ==============================================================================
 # 6. SIMULATIONS 
 # ==============================================================================
 
-# 1: PLAINS (80 K)
+# Note: All "Temps" arrays are in seconds for the solver, 
+# but plotted as "Temps * SEC_TO_YEAR"
 
+# 1: PLAINS (80 K)
 T = 80.0
 Temps = np.geomspace(1e14, 5e19, 5000)
 res = runge_kutta_4_dynamic(system_derivatives(T), Y0, Temps)
-plt.loglog(Temps, res[:, 1], color='#00BFFF', linewidth=3.5) 
-plt.text(2e19, y_txt, "80 K", fontsize=11, fontweight='bold', color='black', ha='center')
+plt.loglog(Temps * SEC_TO_YEAR, res[:, 1], color='#00BFFF', linewidth=3.5) 
+plt.text(2e19 * SEC_TO_YEAR, y_txt, "80 K", fontsize=11, fontweight='bold', color='black', ha='center')
 
 # 2: TIGER STRIPES MARGINS (100 K - 160 K)
 
@@ -171,37 +176,36 @@ plt.text(2e19, y_txt, "80 K", fontsize=11, fontweight='bold', color='black', ha=
 T = 100.0
 Temps = np.geomspace(1e6, 1.8e13, 5000)
 res = runge_kutta_4_dynamic(system_derivatives(T), Y0, Temps)
-plt.loglog(Temps, res[:, 1], color='#1E90FF', linewidth=3)
-plt.text(5e12, y_txt, "100 K", fontsize=11, fontweight='bold', color='black', ha='center')
+plt.loglog(Temps * SEC_TO_YEAR, res[:, 1], color='#1E90FF', linewidth=3)
+plt.text(5e12 * SEC_TO_YEAR, y_txt, "100 K", fontsize=11, fontweight='bold', color='black', ha='center')
 
 # 120 K
 T = 120.0
 Temps = np.geomspace(1e3, 9e8, 5000)  
 res = runge_kutta_4_dynamic(system_derivatives(T), Y0, Temps)
-plt.loglog(Temps, res[:, 1], color='#4169E1', linewidth=3)
-plt.text(4e8, y_txt, "120 K", fontsize=11, fontweight='bold', color='black', ha='center')
+plt.loglog(Temps * SEC_TO_YEAR, res[:, 1], color='#4169E1', linewidth=3)
+plt.text(4e8 * SEC_TO_YEAR, y_txt, "120 K", fontsize=11, fontweight='bold', color='black', ha='center')
 
 # 140 K 
 T = 140.0
 Temps = np.geomspace(1, 7e5, 5000)
 res = runge_kutta_4_dynamic(system_derivatives(T), Y0, Temps)
-plt.loglog(Temps, res[:, 1], color='#0000FF', linewidth=3)
-plt.text(6e5, y_txt, "140 K", fontsize=11, fontweight='bold', ha='center', color='black')
+plt.loglog(Temps * SEC_TO_YEAR, res[:, 1], color='#0000FF', linewidth=3)
+plt.text(6e5 * SEC_TO_YEAR, y_txt, "140 K", fontsize=11, fontweight='bold', ha='center', color='black')
 
 # 160 K 
 T = 160.0
 Temps = np.geomspace(1e-2, 3.3e3, 5000)
 res = runge_kutta_4_dynamic(system_derivatives(T), Y0, Temps)
-plt.loglog(Temps, res[:, 1], color='#0000CC', linewidth=3)
-plt.text(4e3, y_txt, "160 K", fontsize=11, fontweight='bold', ha='center', color='black')
+plt.loglog(Temps * SEC_TO_YEAR, res[:, 1], color='#0000CC', linewidth=3)
+plt.text(4e3 * SEC_TO_YEAR, y_txt, "160 K", fontsize=11, fontweight='bold', ha='center', color='black')
 
 # 3: HOT SPOT (180 K)
-
 T = 180.0
 Temps = np.geomspace(1e-3, 5.1e1, 5000)
 res = runge_kutta_4_dynamic(system_derivatives(T), Y0, Temps)
-plt.loglog(Temps, res[:, 1], color='#000099', linewidth=3)
-plt.text(6e1, y_txt, "180 K", fontsize=11, fontweight='bold', ha='center', color='black')
+plt.loglog(Temps * SEC_TO_YEAR, res[:, 1], color='#000099', linewidth=3)
+plt.text(6e1 * SEC_TO_YEAR, y_txt, "180 K", fontsize=11, fontweight='bold', ha='center', color='black')
 
 # 4: THEORETICAL LIMITS (200 K - 220 K) 
 
@@ -209,49 +213,51 @@ plt.text(6e1, y_txt, "180 K", fontsize=11, fontweight='bold', ha='center', color
 T = 200.0
 Temps = np.geomspace(1e-3, 1.8, 5000)
 res = runge_kutta_4_dynamic(system_derivatives(T), Y0, Temps)
-plt.loglog(Temps, res[:, 1], color='#000066', linewidth=3)
-plt.text(1e0, y_txt, "200 K", fontsize=11, fontweight='bold', ha='center', color='black')
+plt.loglog(Temps * SEC_TO_YEAR, res[:, 1], color='#000066', linewidth=3)
+plt.text(1e0 * SEC_TO_YEAR, y_txt, "200 K", fontsize=11, fontweight='bold', ha='center', color='black')
 
 # 220 K 
 T = 220.0
 Temps = np.geomspace(1e-3, 1.1e-1, 5000)
 res = runge_kutta_4_dynamic(system_derivatives(T), Y0, Temps)
-plt.loglog(Temps, res[:, 1], color='#000033', linewidth=3)
-plt.text(1.5e-2, y_txt, "220 K", fontsize=11, fontweight='bold', ha='center', color='black')
+plt.loglog(Temps * SEC_TO_YEAR, res[:, 1], color='#000033', linewidth=3)
+plt.text(1.5e-2 * SEC_TO_YEAR, y_txt, "220 K", fontsize=11, fontweight='bold', ha='center', color='black')
 
 
 # ==============================================================================
-# 7. ANNOTATIONS 
+# 7. ANNOTATIONS (Positions converted to Years)
 # ==============================================================================
 
 y_bar = 1.75e-7
 y_petit = 1.6e-7
 
 # Annotation: Enceladus Plains
-plt.text(2e19, 2e-7, "Plains in \n South Pole", fontsize=14, fontweight='bold', color='black', ha='center')
-plt.plot([2e19, 2e19], [1.6e-7, 1.9e-7], color='black', linewidth=1.5)
+x_text = 2e19 * SEC_TO_YEAR
+plt.text(x_text, 2e-7, "Plains in \n South Pole", fontsize=14, fontweight='bold', color='black', ha='center')
+plt.plot([x_text, x_text], [1.6e-7, 1.9e-7], color='black', linewidth=1.5)
 
 # Annotation: Tiger Stripes Margins (100-160 K)
-x_start_TS = 4e3    # 160K Position
-x_end_TS = 2e13     # 100K Position
-plt.plot([x_start_TS, x_end_TS], [y_bar, y_bar], color='black', linewidth=1.5)      
+x_start_TS = 4e3 * SEC_TO_YEAR    # 160K Position
+x_end_TS = 2e13 * SEC_TO_YEAR     # 100K Position
+plt.plot([x_start_TS, x_end_TS], [y_bar, y_bar], color='black', linewidth=1.5)       
 plt.plot([x_start_TS, x_start_TS], [y_bar, y_petit], color='black', linewidth=1.5)    
 plt.plot([x_end_TS, x_end_TS], [y_bar, y_petit], color='black', linewidth=1.5)        
-plt.text(3e8, 2e-7, "Tiger Stripes\nMargins", fontsize=14, fontweight='bold', color='black', ha='center')
-plt.plot([3e8, 3e8], [1.9e-7, y_bar], color='black', linewidth=1.5) # Vertical connecting line
+plt.text(3e8 * SEC_TO_YEAR, 2e-7, "Tiger Stripes\nMargins", fontsize=14, fontweight='bold', color='black', ha='center')
+plt.plot([3e8 * SEC_TO_YEAR, 3e8 * SEC_TO_YEAR], [1.9e-7, y_bar], color='black', linewidth=1.5) 
 
 # Annotation: Hot Spot (180 K)
-plt.plot([6e1, 6e1], [1.6e-7, 1.9e-7], color='black', linewidth=1.5)
-plt.text(6e1, 2e-7, "Hottest\nPoint", fontsize=14, fontweight='bold', color='black', ha='center')
+x_text_hot = 6e1 * SEC_TO_YEAR
+plt.plot([x_text_hot, x_text_hot], [1.6e-7, 1.9e-7], color='black', linewidth=1.5)
+plt.text(x_text_hot, 2e-7, "Hottest\nPoint", fontsize=14, fontweight='bold', color='black', ha='center')
 
 # Annotation: Theoretical Limits (200-220 K)
-x_start_Lim = 1.5e-2 # 220K Position
-x_end_Lim = 1e0      # 200K Position
+x_start_Lim = 1.5e-2 * SEC_TO_YEAR # 220K Position
+x_end_Lim = 1e0 * SEC_TO_YEAR      # 200K Position
 plt.plot([x_start_Lim, x_end_Lim], [y_bar, y_bar], color='black', linewidth=1.5)
 plt.plot([x_start_Lim, x_start_Lim], [y_bar, y_petit], color='black', linewidth=1.5)
 plt.plot([x_end_Lim, x_end_Lim], [y_bar, y_petit], color='black', linewidth=1.5)
-plt.text(1e-1, 2e-7, "Theoretical\nLimits", fontsize=14, fontweight='bold', color='black', ha='center')
-plt.plot([1e-1, 1e-1], [1.9e-7, y_bar], color='black', linewidth=1.5) # Vertical connecting line
+plt.text(1e-1 * SEC_TO_YEAR, 2e-7, "Theoretical\nLimits", fontsize=14, fontweight='bold', color='black', ha='center')
+plt.plot([1e-1 * SEC_TO_YEAR, 1e-1 * SEC_TO_YEAR], [1.9e-7, y_bar], color='black', linewidth=1.5)
 
 
 # ==============================================================================
@@ -260,15 +266,16 @@ plt.plot([1e-1, 1e-1], [1.9e-7, y_bar], color='black', linewidth=1.5) # Vertical
 
 # Title
 plt.title("Surface Consolidation on Enceladus: Thermal Zoning Analysis ( $r_p = 0.5$ µm )", fontsize=16)
-plt.xlabel("Time [s]", fontsize=14, fontweight='bold')
+plt.xlabel("Time [Years]", fontsize=14, fontweight='bold') # LABEL CHANGÉ
 plt.ylabel("Sinter Neck Radius [m]", fontsize=14, fontweight='bold')
 
 # Limit lines (Solar System Age / Initial Radius)
-plt.axvline(x=1.45e17, color='black', linestyle='--', linewidth=2)
+# 4.5e9 years instead of 1.45e17 seconds
+plt.axvline(x=4.5e9, color='black', linestyle='--', linewidth=2)
 plt.axhline(y=rn_init, color='gray', linestyle=':', linewidth=2 )
 
-plt.text(5e16, 1.3e-7, "Age of the Solar System", rotation=90, fontsize=12, va='bottom')
-plt.text(1e-2, 3.3e-8, "Initial Neck Radius (Adhesion)", ha='left', fontsize=11)
+plt.text(1.5e9, 1.3e-7, "Age of the Solar System", rotation=90, fontsize=12, va='bottom')
+plt.text(1e-10, 3.3e-8, "Initial Neck Radius (Adhesion)", ha='left', fontsize=11) # Adjusted X position for years
 
 # Axis parameters (Log-Log)
 ax = plt.gca()
@@ -278,12 +285,12 @@ ax.tick_params(which='minor', length=4, width=1)
 loc_majeurs_y = ticker.LogLocator(base=10.0, numticks=10)
 ax.yaxis.set_major_locator(loc_majeurs_y)
 
-plt.xlim(1e-3, 1e21)
+# Limits ajusted for Years (1e-3 sec becomes ~3e-11 years)
+plt.xlim(1e-11, 1e13) 
 plt.ylim(3e-8, 3e-7)
 plt.grid(True, which="both", alpha=0.4, color='grey')
 
 plt.tight_layout()
-plt.savefig('Fig_12_reproduction_final.png', dpi=300)
 plt.show()
 
 # End
